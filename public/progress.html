@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Course Progress</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2fff2;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #006600;
+      text-align: center;
+    }
+
+    .user-progress {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #ffffff;
+      border: 1px solid #cce0cc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .user-progress h2 {
+      color: #004d00;
+      margin-bottom: 10px;
+    }
+
+    .course {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f5fff5;
+      border-left: 5px solid #00cc44;
+      border-radius: 6px;
+    }
+
+    .course-title {
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .progress-fill {
+      height: 16px;
+      background-color: #00cc44;
+      width: 0;
+      transition: width 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <h1>User Course Progress</h1>
+  <div id="progress-container"></div>
+
+  <script>
+    async function fetchProgress() {
+      const res = await fetch('/user/progress');
+      const users = await res.json();
+
+      const container = document.getElementById('progress-container');
+      container.innerHTML = '';
+
+      users.forEach(user => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'user-progress';
+        userDiv.innerHTML = `<h2>${user.username}</h2>`;
+
+        user.registeredCourses.forEach(course => {
+          const courseDiv = document.createElement('div');
+          courseDiv.className = 'course';
+
+          const percentage = Math.round((course.completedVideos / course.totalVideos) * 100);
+
+          courseDiv.innerHTML = `
+            <div class="course-title">${course.courseName}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${percentage}%"></div>
+            </div>
+            <div>${percentage}% completed (${course.completedVideos}/${course.totalVideos})</div>
+          `;
+
+          userDiv.appendChild(courseDiv);
+        });
+
+        container.appendChild(userDiv);
+      });
+    }
+
+    fetchProgress();
+  </script>
+</body>
+</html>

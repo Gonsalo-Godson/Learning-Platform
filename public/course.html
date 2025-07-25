@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Page</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #e6ffe6;
+    }
+
+    #course-content {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 40px;
+    }
+
+    .left-side {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .right-side {
+      flex: 1;
+      min-width: 200px;
+      background: #f0fff0;
+      padding: 20px;
+      border-left: 2px solid #c0e6c0;
+      border-radius: 12px;
+    }
+
+    h1 {
+      color: #004d00;
+    }
+
+    .thumbnail, .video-player {
+      width: 100%;
+      max-width: 800px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .video-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    #video-title {
+      font-size: 20px;
+      color: #004d00;
+      font-weight: bold;
+      margin: 10px 0 0;
+    }
+
+    #register-btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #00cc44;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #register-btn:hover {
+      background-color: #009933;
+    }
+
+    .video-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .video-controls button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #009933;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .video-controls button:hover {
+      background-color: #007a2d;
+    }
+
+    .playlist h3 {
+      margin-bottom: 10px;
+    }
+
+    .playlist button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .playlist button:hover {
+      background-color: #ccffcc;
+    }
+
+    .playlist button:disabled {
+      background-color: #eee;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    #progress-display {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #004d00;
+    }
+  </style>
+</head>
+<body>
+  <div id="course-content">
+    <div class="left-side">
+      <h1 id="course-title">Course</h1>
+      <img id="course-thumbnail" class="thumbnail" src="" alt="Course Thumbnail">
+
+      <div class="video-section">
+        <video id="course-video" class="video-player" controls hidden>
+          <source id="video-source" src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <div class="video-controls" hidden id="video-buttons">
+          <button onclick="previousVideo()">Previous</button>
+          <button onclick="pauseVideo()">Pause/Play</button>
+          <button onclick="nextVideo()">Next</button>
+        </div>
+
+        <h2 id="video-title" hidden>Now Playing:</h2>
+
+        <button id="register-btn">Register</button>
+      </div>
+    </div>
+
+    <div class="right-side playlist">
+      <h3>Playlist</h3>
+      <div id="playlist-buttons"></div>
+      <p id="progress-display">Progress: 0% completed</p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const courseName = params.get('name');
+    const username = params.get('username');
+
+    if (!username || !courseName) {
+      alert("Missing course or user info in URL.");
+      throw new Error("Missing parameters");
+    }
+
+    const titleEl = document.getElementById('course-title');
+    const videoEl = document.getElementById('course-video');
+    const videoSrc = document.getElementById('video-source');
+    const thumbEl = document.getElementById('course-thumbnail');
+    const registerBtn = document.getElementById('register-btn');
+    const controlsDiv = document.getElementById('video-buttons');
+    const videoTitleEl = document.getElementById('video-title');
+    const progressDisplay = document.getElementById('progress-display');
+    const playlistDiv = document.getElementById('playlist-buttons');
+
+    let isRegistered = false;
+    let currentVideoIndex = 0;
+    let watchedVideos = new Set();
+
+    const thumbnails = {
+      "Python": "images/python-coding-mistakes.jpg",
+      "Java": "images/java_binary_code_gears_programming_coding_development_by_bluebay2014_gettyimages-1040871468_2400x1600-100795798-orig.webp",
+      "C Language": "images/1679804058550.jpeg",
+      "HTML": "images/cover-img.jpg",
+      "CSS": "images/sta-je-css.png",
+      "JavaScript": "images/images.jpeg",
+      "SQL": "images/WhatsApp-Image-2022-10-18-at-20.40.24-1097x800.jpeg",
+      "MongoDB": "images/MongoDB-Logo.jpg",
+      "CouchDB": "images/images.png"
+    };
+
+    const videos = [
+      "videos/Why Programming Is Important .mp4",
+      "videos/What is a Programming Language in 60 seconds!.mp4",
+      "videos/coding is easy, actually.mp4",
+      "videos/Your Approach to Programming is Wrong.mp4",
+      "videos/Mindset of Successful Programmers.mp4"
+    ];
+
+    titleEl.textContent = `${courseName} Course`;
+    thumbEl.src = thumbnails[courseName] || "images/default-thumbnail.jpg";
+
+    // Create playlist (all buttons disabled initially)
+    videos.forEach((vid, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = `Course Video ${i + 1}`;
+      btn.disabled = true;
+      btn.onclick = () => {
+        if (isRegistered) startVideo(i);
+        else alert("🚫 You must register first to watch videos.");
+      };
+      playlistDiv.appendChild(btn);
+    });
+
+    registerBtn.onclick = async () => {
+      try {
+        const res = await fetch('/register-course', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, courseName })
+        });
+
+        if (res.ok) {
+          alert("✅ Course registered! You can now begin.");
+          isRegistered = true;
+          registerBtn.disabled = true;
+          enablePlaylist();
+        } else {
+          alert('❌ Failed to register.');
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+      }
+    };
+
+    function enablePlaylist() {
+      [...playlistDiv.children].forEach(btn => btn.disabled = false);
+    }
+
+    async function startVideo(index) {
+      if (!isRegistered) {
+        alert("🚫 Please register to access videos.");
+        return;
+      }
+
+      currentVideoIndex = index;
+      thumbEl.style.display = 'none';
+      videoEl.hidden = false;
+      controlsDiv.hidden = false;
+
+      videoSrc.src = videos[currentVideoIndex];
+      videoEl.load();
+      videoEl.play();
+
+      const fileName = videos[currentVideoIndex].split('/').pop();
+      const cleanedTitle = fileName.replace(/\.[^/.]+$/, '').replace(/_/g, ' ').trim();
+      videoTitleEl.textContent = `Now Playing: ${cleanedTitle}`;
+      videoTitleEl.hidden = false;
+
+      if (!watchedVideos.has(index)) {
+        watchedVideos.add(index);
+        updateProgress();
+        await fetch('/complete-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, courseName, videoIndex: index })
+        });
+      }
+    }
+
+    function pauseVideo() {
+      videoEl.paused ? videoEl.play() : videoEl.pause();
+    }
+
+    function nextVideo() {
+      if (currentVideoIndex < videos.length - 1) {
+        startVideo(currentVideoIndex + 1);
+      }
+    }
+
+    function previousVideo() {
+      if (currentVideoIndex > 0) {
+        startVideo(currentVideoIndex - 1);
+      }
+    }
+
+    function updateProgress() {
+      const percent = Math.round((watchedVideos.size / videos.length) * 100);
+      progressDisplay.textContent = `Progress: ${percent}% completed`;
+    }
+
+    // On page load: check if already registered
+    window.onload = async () => {
+      try {
+        const res = await fetch(`/progress/${username}`);
+        const data = await res.json();
+        const course = data.registeredCourses.find(c => c.courseName === courseName);
+        if (course) {
+          watchedVideos = new Set(course.completedVideos);
+          updateProgress();
+          isRegistered = true;
+          registerBtn.disabled = true;
+          enablePlaylist();
+        }
+      } catch (err) {
+        console.error("Error loading progress", err);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title id="page-title">Online Learning Platform</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: transparent;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: url('/images/84628402-back-to-school-pattern-on-green-background.jpg') center/cover no-repeat;
+      filter: blur(5px) brightness(0.85);
+      z-index: -1;
+    }
+
+    .container {
+      padding: 20px;
+      position: relative;
+    }
+
+    .top-right-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #007733;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #greeting-title {
+      width: 100%;
+      background-color: white;
+      padding: 30px 0;
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #004d26;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    h2, h3 {
+      color: white;
+    }
+
+    #user-progress-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0fff0;
+      border: 2px solid #00cc66;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .course-category {
+      margin-bottom: 40px;
+    }
+
+    .course-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .dashboard-section {
+      flex: 1 1 30%;
+      min-width: 280px;
+      background-color: #ccffcc;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .dashboard-section h4 {
+      margin-bottom: 10px;
+      color: #006600;
+    }
+
+    .course-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-section {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-section {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="top-right-button" onclick="showProgress()">Show My Progress</button>
+    <h1 id="greeting-title">&Welcome!</h1>
+    <div id="user-progress-box"></div>
+
+    <h2>Courses Offered</h2>
+
+    <!-- Software Engineering -->
+    <div class="course-category">
+      <h3>Software Engineering</h3>
+      <div class="course-grid">
+        <div class="dashboard-section" onclick="goToCourse('Python')">
+          <h4>Python</h4>
+          <img src="images/python-coding-mistakes.jpg" alt="Python Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('Java')">
+          <h4>Java</h4>
+          <img src="images/java_binary_code_gears_programming_coding_development_by_bluebay2014_gettyimages-1040871468_2400x1600-100795798-orig.webp" alt="Java Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('C Language')">
+          <h4>C Language</h4>
+          <img src="images/1679804058550.jpeg" alt="C Logo" class="course-image">
+        </div>
+      </div>
+    </div>
+
+    <!-- Web Development -->
+    <div class="course-category">
+      <h3>Web Development</h3>
+      <div class="course-grid">
+        <div class="dashboard-section" onclick="goToCourse('HTML')">
+          <h4>HTML</h4>
+          <img src="images/cover-img.jpg" alt="HTML Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('CSS')">
+          <h4>CSS</h4>
+          <img src="images/sta-je-css.png" alt="CSS Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('JavaScript')">
+          <h4>JavaScript</h4>
+          <img src="images/images.jpeg" alt="JavaScript Logo" class="course-image">
+        </div>
+      </div>
+    </div>
+
+    <!-- Database -->
+    <div class="course-category">
+      <h3>Database</h3>
+      <div class="course-grid">
+        <div class="dashboard-section" onclick="goToCourse('SQL')">
+          <h4>SQL</h4>
+          <img src="images/WhatsApp-Image-2022-10-18-at-20.40.24-1097x800.jpeg" alt="SQL Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('MongoDB')">
+          <h4>MongoDB</h4>
+          <img src="images/MongoDB-Logo.jpg" alt="MongoDB Logo" class="course-image">
+        </div>
+        <div class="dashboard-section" onclick="goToCourse('CouchDB')">
+          <h4>CouchDB</h4>
+          <img src="images/images.png" alt="CouchDB Logo" class="course-image">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username');
+    const title = document.getElementById('greeting-title');
+    title.textContent = username ? `Welcome, ${username}!` : 'Hello!';
+    document.title = 'Online Learning Platform';
+
+    function goToCourse(course) {
+      window.location.href = `course.html?name=${encodeURIComponent(course)}&username=${encodeURIComponent(username)}`;
+    }
+
+    let isProgressVisible = false;
+
+    async function showProgress() {
+      const progressBox = document.getElementById('user-progress-box');
+
+      if (isProgressVisible) {
+        progressBox.style.display = 'none';
+        isProgressVisible = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/progress/${username}`);
+        const data = await res.json();
+
+        if (!data || !data.username) {
+          progressBox.innerHTML = '<strong>User progress not found.</strong>';
+        } else {
+          let html = `<strong>Hi, ${data.username}!</strong><br><br>`;
+          if (!data.registeredCourses || data.registeredCourses.length === 0) {
+            html += 'You have not registered for any courses yet.';
+          } else {
+            html += '<ul>';
+            data.registeredCourses.forEach(course => {
+              const percent = Math.round((course.completedVideos.length / 5) * 100);
+              html += `<li>${course.courseName}: ${percent}% completed</li>`;
+            });
+            html += '</ul>';
+          }
+          progressBox.innerHTML = html;
+        }
+
+        progressBox.style.display = 'block';
+        isProgressVisible = true;
+      } catch (err) {
+        console.error(err);
+        alert('Failed to load progress.');
+      }
+    }
+  </script>
+</body>
+</html>
